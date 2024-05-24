@@ -74,6 +74,8 @@ export default class Lobby extends Vue {
     showingInvites = false;
     creatingLobby = false;
 
+    acceptedGame = false;
+
     mounted() {
         // Start observing the lobby.
         this.$root.observe("/lol-lobby/v2/lobby", this.handleLobbyChange.bind(this));
@@ -81,6 +83,16 @@ export default class Lobby extends Vue {
         // Observe matchmaking state for queue dodge timer.
         this.$root.observe("/lol-matchmaking/v1/search", result => {
             this.matchmakingState = result.status === 200 ? result.content : null;
+            const maxTimeInQueue = 2 * 60;
+            if (this.matchmakingState && this.matchmakingState.timeInQueue > maxTimeInQueue) {
+                console.log('hit max time in queue');
+                this.$root.request("/lol-lobby/v2/lobby/matchmaking/search", "DELETE");
+
+                setTimeout(() => {
+                    this.joinMatchmaking();
+                }, 100);
+            }
+
         });
     }
 
@@ -95,7 +107,7 @@ export default class Lobby extends Vue {
      * this in it, it will not work. This is because this is just a proxy object to Vue instance when
      * initializing class properties."
      */
-    handleLobbyChange = async function(this: Lobby, result: Result) {
+    handleLobbyChange = async function (this: Lobby, result: Result) {
         if (result.status !== 200) {
             this.state = null;
             this.creatingLobby = false;

@@ -6,7 +6,8 @@
     "repository": "https://github.com/molenzwiebel/mimic",
     "scripts": {
         "serve": "vue-cli-service serve",
-        "build": "vue-cli-service build"
+        "build": "vue-cli-service build",
+        "start": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve"
     },
     "dependencies": {
         "node-rsa": "^1.0.5",
